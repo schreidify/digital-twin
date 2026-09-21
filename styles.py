@@ -61,7 +61,7 @@ _ARROW_URL = f'url("data:image/svg+xml,{quote(_ARROW)}")'
 _FONTS = (
     "@import url('https://fonts.googleapis.com/css2?"
     "family=Bricolage+Grotesque:wght@400;600;700"
-    "&family=Source+Serif+4:ital,wght@0,400;0,500;1,400"
+    "&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400"
     "&family=JetBrains+Mono:wght@400;500&display=swap');\n"
 )
 
@@ -99,6 +99,8 @@ _VARS = f"""
   --border-color-primary: {RULE};
   --border-color-accent: {PINK};
   --color-accent: {PINK};
+  --color-accent-soft: {PINK_WASH};
+  --table-row-focus: {PINK_WASH};
   --link-text-color: {INK};
   --link-text-color-hover: {INK};
   --link-text-color-active: {INK};
@@ -132,13 +134,14 @@ html, body, gradio-app {
   background: var(--tw-page) !important;
   color: var(--tw-ink) !important;
   -webkit-font-smoothing: antialiased;
+  height: 100% !important;
 }
 
 /* ---------- Page and masthead ---------- */
 .gradio-container {
   position: relative !important;
   width: 100% !important;
-  max-width: 1200px !important;
+  max-width: 1600px !important;
   margin: 0 auto !important;
   padding: 0 clamp(16px, 4vw, 48px) !important;
   overflow: visible !important;  /* lets the composer bar run edge to edge */
@@ -146,8 +149,92 @@ html, body, gradio-app {
   color: var(--tw-ink) !important;
   font-family: var(--tw-body) !important;
 }
+
+/* ---------- Two-column shell: bio | chat ---------- */
+.twin-layout {
+  align-items: stretch !important;
+  gap: clamp(16px, 2.5vw, 40px) !important;
+  margin-top: 8px !important;
+  min-height: calc(100dvh - 56px - 8px) !important;
+}
+.twin-bio {
+  position: sticky;
+  top: 24px;
+  align-self: flex-start;
+}
+.twin-bio h1 {
+  font-size: clamp(32px, 4.2vw, 56px) !important;
+  margin-top: 24px !important;
+}
+.twin-bio .twin-mark-wrap {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  min-height: 0 !important;
+}
+.twin-bio .twin-mark-logo {
+  display: block;
+  width: clamp(88px, 28%, 120px);
+  height: auto;
+  margin: 18px 0 0;
+  pointer-events: none;
+  user-select: none;
+}
+.twin-bio .prose[data-testid="markdown"] p {
+  max-width: none;
+  margin-top: 20px !important;
+  font-size: 17px !important;
+}
+.twin-bio .examples {
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  margin-top: 28px !important;
+}
+.twin-bio button.example,
+.twin-bio .examples button {
+  width: 100% !important;
+  text-align: left !important;
+}
+.twin-chat {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+/* Chat column fills the viewport; messages grow, composer sits on the bottom edge */
+.twin-chat > .column,
+.twin-chat > .fillable,
+.twin-chat .contain,
+.twin-chat .wrap,
+.twin-chat .gap,
+.twin-chat form,
+.twin-chat .form {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+@media (max-width: 900px) {
+  .twin-layout {
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+  .twin-bio {
+    position: static;
+    align-self: stretch;
+  }
+  .twin-chat {
+    /* Fill remaining viewport under the bio when stacked */
+    flex: 1 1 auto !important;
+    min-height: min(70dvh, calc(100dvh - 200px)) !important;
+  }
+}
 .gradio-container::before {
-  content: "Digital twin";
+  content: "Personal digital twin";
   display: block;
   box-sizing: border-box;
   height: 56px;
@@ -157,11 +244,32 @@ html, body, gradio-app {
   text-transform: uppercase;
   color: var(--tw-muted);
 }
+/* Twin mark pinned to the masthead, opposite the label above. */
+.gradio-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: clamp(16px, 4vw, 48px);
+  height: 56px;
+  width: 72px;
+  background-image: var(--tw-mark);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: contain;
+  pointer-events: none;
+}
 .gradio-container main,
 .gradio-container .main,
 .gradio-container .wrap,
 .gradio-container .contain,
-.gradio-container .fillable,
+.gradio-container .fillable {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  background: transparent !important;
+}
 .gradio-container .column {
   width: 100% !important;
   max-width: 100% !important;
@@ -189,6 +297,7 @@ html, body { overflow-x: clip; }
   align-items: center;
   gap: 32px;
   font: 500 13px/1 var(--tw-mono);
+  z-index: 2;
 }
 
 a, .gradio-container a {
@@ -256,10 +365,26 @@ div.block:has(.bubble-wrap),
   color: var(--tw-ink) !important;
 }
 .bubble-wrap {
-  padding: 24px 0 24px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 24px 36px !important;
   overflow-y: auto !important;
 }
-div.block:has(.bubble-wrap) { min-height: 46vh !important; }
+div.block:has(.bubble-wrap) {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.wrapper:has(> .bubble-wrap) {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 
 /* Empty state: headline, then chips */
 .placeholder-content {
@@ -308,7 +433,7 @@ div.block:has(.bubble-wrap) { min-height: 46vh !important; }
   background: transparent !important;
 }
 .examples::before {
-  content: "Or start here";
+  content: "";
   flex: 0 0 100%;
   margin-bottom: 2px;
   font: 500 12px/1.2 var(--tw-mono);
@@ -338,10 +463,13 @@ button.example *, .examples button * {
   color: inherit !important;
   text-align: left !important;
 }
-button.example:hover, .examples button:hover {
-  background: var(--tw-ink) !important;
-  color: var(--tw-ground) !important;
-  border-color: var(--tw-ink) !important;
+button.example:hover,
+.examples button:hover,
+.gallery-item:hover,
+.twin-bio .gallery-item:hover {
+  background: var(--tw-pink-wash) !important;
+  color: var(--tw-ink) !important;
+  border-color: var(--tw-pink) !important;
 }
 
 /* ---------- Messages: label rail on the left, text beside it ---------- */
@@ -421,8 +549,57 @@ button.example:hover, .examples button:hover {
 }
 .message-row .prose p { margin: 0 !important; color: inherit !important; background: transparent !important; }
 .message-row .prose p + p { margin-top: 18px !important; }
-.message-row .prose ul, .message-row .prose ol { margin: 18px 0 0 !important; padding-left: 1.3em !important; }
-.message-row .prose strong { font-weight: 600; }
+.message-row .prose ul, .message-row .prose ol {
+  margin: 18px 0 36px !important;
+  padding-left: 1.3em !important;
+}
+.message-row .prose li { margin: 0 0 8px !important; }
+.message-row .prose li:last-child { margin-bottom: 0 !important; }
+/* Bold stays at the surrounding size; Gradio's h3 (16px) was smaller than 19px body. */
+.message-row .prose strong,
+.message-row .prose b {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: 600 !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+}
+.message-row.bot-row .prose h1,
+.message-row.bot-row .prose h2,
+.message-row.bot-row .prose h3,
+.message-row.bot-row .prose h4,
+.message-row.bot-row .prose h5,
+.message-row.bot-row .prose h6,
+.message-row.bot-row .prose p.twin-md-heading {
+  margin: 28px 0 10px !important;
+  color: var(--tw-ink) !important;
+  font: 600 24px/1.25 var(--tw-display) !important;
+  letter-spacing: -0.02em !important;
+  text-wrap: balance;
+}
+.message-row.bot-row .prose h3,
+.message-row.bot-row .prose h4 { font-size: 22px !important; }
+.message-row.bot-row .prose h5,
+.message-row.bot-row .prose h6 { font-size: 20px !important; }
+.message-row.bot-row .prose h1:first-child,
+.message-row.bot-row .prose h2:first-child,
+.message-row.bot-row .prose h3:first-child,
+.message-row.bot-row .prose h4:first-child,
+.message-row.bot-row .prose h5:first-child,
+.message-row.bot-row .prose h6:first-child,
+.message-row.bot-row .prose p.twin-md-heading:first-child { margin-top: 0 !important; }
+.message-row.bot-row .prose p.twin-md-heading strong {
+  font: inherit !important;
+  font-weight: 600 !important;
+}
+.message-row.bot-row .prose ul + h1,
+.message-row.bot-row .prose ul + h2,
+.message-row.bot-row .prose ul + h3,
+.message-row.bot-row .prose ul + .twin-md-heading,
+.message-row.bot-row .prose ol + h1,
+.message-row.bot-row .prose ol + h2,
+.message-row.bot-row .prose ol + h3,
+.message-row.bot-row .prose ol + .twin-md-heading { margin-top: 8px !important; }
 .message-row .prose code,
 .message-row .prose pre {
   font-family: var(--tw-mono) !important;
@@ -465,7 +642,11 @@ button.example:hover, .examples button:hover {
 }
 .icon-button:hover, .message-buttons button:hover { color: var(--tw-ink) !important; }
 
-/* ---------- Composer bar ---------- */
+/* ---------- Composer bar (pinned to the bottom of the chat column) ---------- */
+.twin-chat .gr-group {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+}
 .gr-group {
   position: sticky;
   bottom: 0;
@@ -477,17 +658,18 @@ button.example:hover, .examples button:hover {
   border-radius: 0 !important;
   box-shadow: none !important;
 }
-.gr-group::before {  /* the bar itself runs edge to edge */
+.gr-group::before {  /* full-bleed bar across the viewport, not just the chat column */
   content: "";
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  bottom: -40px;
-  left: 50%;
-  width: 100vw;
-  transform: translateX(-50%);
+  position: fixed;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: var(--tw-composer-top, auto);
+  min-height: 100px;
   background: var(--tw-bar);
   border-top: 1px solid var(--tw-ink);
+  pointer-events: none;
 }
 .gr-group .gr-group {  /* Gradio 6 nests a second group inside the first */
   position: static;
@@ -598,7 +780,13 @@ textarea::placeholder, input::placeholder {
   .placeholder-content .placeholder::before { width: 100px; margin-bottom: 20px; }
   .message-row.bot-row .message-content,
   .message-row.bot-row .prose,
-  .message-row.bot-row .prose p { font-size: 17px !important; }
+  .message-row.bot-row .prose p,
+  .message-row.bot-row .prose li { font-size: 17px !important; }
+  .message-row.bot-row .prose h1,
+  .message-row.bot-row .prose h2,
+  .message-row.bot-row .prose p.twin-md-heading { font-size: 22px !important; }
+  .message-row.bot-row .prose h3,
+  .message-row.bot-row .prose h4 { font-size: 20px !important; }
   .gr-group { padding: 12px 0 16px !important; }
 }
 """
@@ -674,5 +862,30 @@ JS = """
   const scan = () => document.querySelectorAll('textarea').forEach(watchTextarea);
   setTimeout(scan, 500);
   new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+
+  // A paragraph that is only **bold** is a section title, not inline emphasis.
+  const promoteHeadings = () => {
+    document.querySelectorAll('.message-row.bot-row .prose p').forEach((p) => {
+      const parts = Array.from(p.childNodes).filter((n) => {
+        return !(n.nodeType === 3 && !n.textContent.trim());
+      });
+      const onlyStrong = parts.length === 1 && parts[0].nodeName === 'STRONG';
+      p.classList.toggle('twin-md-heading', onlyStrong);
+    });
+  };
+  promoteHeadings();
+  new MutationObserver(promoteHeadings).observe(document.body, { childList: true, subtree: true });
+
+  // Keep the full-bleed composer bar aligned with the sticky input group.
+  const syncComposerBar = () => {
+    const group = document.querySelector('.twin-chat .gr-group');
+    if (!group) return;
+    const top = Math.round(group.getBoundingClientRect().top);
+    document.documentElement.style.setProperty('--tw-composer-top', top + 'px');
+  };
+  syncComposerBar();
+  window.addEventListener('resize', syncComposerBar);
+  window.addEventListener('scroll', syncComposerBar, { passive: true });
+  new MutationObserver(syncComposerBar).observe(document.body, { childList: true, subtree: true });
 }
 """
