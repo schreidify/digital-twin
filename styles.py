@@ -234,7 +234,7 @@ html, body, gradio-app {
   }
 }
 .gradio-container::before {
-  content: "Personal digital twin";
+  content: "Interactive Resume";
   display: block;
   box-sizing: border-box;
   height: 56px;

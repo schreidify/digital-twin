@@ -5,6 +5,7 @@ from styles import CSS, JS, EXAMPLES
 from dotenv import load_dotenv
 from pathlib import Path
 import base64
+import os
 import gradio as gr
 
 load_dotenv(override=True)
@@ -72,4 +73,10 @@ if __name__ == "__main__":
                     chatbot=gr.Chatbot(show_label=False, scale=1, height="100%"),
                 )
 
-    demo.launch(css=CSS, js=JS, theme=gr.themes.Base())
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.environ.get("PORT", 7860)),
+        css=CSS,
+        js=JS,
+        theme=gr.themes.Base(),
+    )
